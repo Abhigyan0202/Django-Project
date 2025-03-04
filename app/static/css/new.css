@@ -1,0 +1,26 @@
+
+@import url('https://fonts.googleapis.com/css?family=Raleway:400,700');
+
+
+body {
+	background: linear-gradient(90deg, #C7C5F4, #776BCC);		
+}
+
+
+.mydiv {
+	position: relative;
+	margin: 20px;
+	padding: 20px;
+	border: 2px solid blue;
+	
+}
+.right_corner {
+	position: absolute;
+	top: 20px;
+	right: 50px;
+
+}
+.mydiv:hover{
+	cursor: pointer;
+}
+

@@ -1,0 +1,33 @@
+{%  include "app/basic.html" %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile</title>
+</head>
+<body>
+    <!--{{user.username}} <br>
+    {{user.userprofile.description}}
+    <img src="/app{{user.userprofile.pfp.url}}" alt="Image of the user {{user.username}}" width="400" height="600">-->
+    
+    <div class="container m-5 text-center">
+        <form action="{% url 'app:updateprofile'%}" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="row">
+                <div class="col-4 border m-3 justify-items-center">
+                    <img src="/app{{user.userprofile.pfp.url}}" class="rounded-circle img-fluid"  alt="Image of the user {{user.username}}">
+                    <label for="id_pfp"></label>
+                    <input type="file" id="id_pfp" name="pfp" accept="image/*">
+                </div>
+                <div class="col-6 border m-3">
+                    <label class="form-label"  for="id_description">Description:</label>
+                    <textarea class="form-control"  name="description" id="id_description" row="30" >{{user.userprofile.description}}</textarea>                    
+                </div>
+            </div>
+            <button class="btn btn-primary">Save Changes</button>
+        </form>
+        
+    </div>
+</body>
+</html>

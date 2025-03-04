@@ -1,0 +1,104 @@
+{%  include "app/basic.html" %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script >
+        function submitComment(event){
+            event.preventDefault();
+            const form = document.querySelector('#commentform')
+            const formdata = new FormData(form)
+            console.log(`${formdata.content} ${formdata.id}`);
+            fetch('/app/addcomment', {
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: formdata 
+            })
+            .then(response => response.json())
+            .then(data => {
+                if(data.error) {
+                    alert("Error: "+data.error);
+                } else {
+                    let comments = document.getElementById('commentlist')
+                    let newcomment = document.createElement("div")
+                    newcomment.className = "comment"
+                    newcomment.innerHTML = `
+                    <div class="container p-3 m-3 border rounded-3">
+                    <div class="d-flex align-items-center">
+                        <img src="" alt="Profile" width="40" height="40" class="rounded-circle me-2">
+                        <div>
+                            <!--Username-->
+                            <div class="fw-bold">${data.username}</div>
+                        </div>
+                    </div>
+                    ${data.content}
+                </div>
+                    `
+                    comments.innerHTML = newcomment.innerHTML + comments.innerHTML;
+
+                    document.getElementsByName('content').value = "";
+                }
+            })
+        }
+    </script>
+    <style>
+    </style>
+</head>
+<body>
+    <div class="container mt-3" >
+        <div class="card shadow-sm mb-3 p-3 rounded-3" >
+            <div class="d-flex align-items-center">
+                <img src="" alt="Profile" width="40" height="40" class="rounded-circle me-2">
+                <div>
+                    <!--Username-->
+                    <div class="fw-bold">{{post.user}}</div>
+                </div>
+            </div>
+            <!--Heading-->
+            <div class="mt-2 fs-2 text-info" id="link" data-id={{i.id}}>
+              {{post.heading}}
+            </div>
+          <!--Content-->
+            <p class="mt-2 text-break">
+                {{post.content}}
+            </p>
+            <div class="d-flex justify-content-between mt-2">
+                <button class="btn btn-outline-secondary btn-sm"><i class="bi bi-share"></i> Share</button>
+            </div>
+        </div>
+    </div>
+    <!--Need to deal with the css not loading for new comment issue-->
+    
+    
+    <div class="container col-lg-6 border ms-0 m-3">
+        <form onsubmit="submitComment(event)" id="commentform">
+            {% csrf_token %}
+            <div class="mb-3 align">
+                <label for="id_content" class="form-label">Add a comment</label>
+                <textarea class="form-control" id="id_content" name="content" required=""> </textarea>
+              </div>
+            <input type="hidden" name="id"value="{{post.id}}">
+            <button type="submit" class="btn btn-primary">Comment</button>
+        </form>
+    </div>
+    <div id="commentlist" >
+        <!---->
+        {% for i in comments %}
+        <div class="container p-3 m-3 border rounded-3">
+            <div class="d-flex align-items-center">
+                <img src="" alt="Profile" width="40" height="40" class="rounded-circle me-2">
+                <div>
+                    <!--Username-->
+                    <div class="fw-bold">{{i.user}}</div>
+                </div>
+            </div>
+            {{i.content}}
+        </div>
+        {% endfor %}
+    </div>
+</body>
+</html>

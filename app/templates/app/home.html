@@ -1,0 +1,56 @@
+{% include "app/basic.html"%}
+<!--Need to implement a way for the option for sign up to display if the user is not logged in
+Can maybe use django conditions for it like sending a boolean to see if user is logged in or not and then
+include it in the navbar by first adding another block in the navbar
+ALso, may be these should be visible UI changes between registered and non registered users
+-->
+
+<head>
+    <script>
+        document.addEventListener('click', event => {
+            const element = event.target;
+            if(element.className === 'mt-2 fs-2 text-info') {
+                window.location.href = `/app/posts/${element.dataset.id}`;
+            }
+            if(element.className === 'right_corner'){
+                window.location.href = '/app/userp'
+            }
+        })
+    </script>
+    <style>
+        
+    </style>
+
+</head>
+
+{%block body%}
+
+<!--A template for the home page, addpost page, maybe the addpost page can be replace with a modal ????-->
+
+{% for i in posts%}
+<div class="container mt-3" >
+    <div class="card shadow-sm mb-3 p-3 rounded-3" >
+        <div class="d-flex align-items-center">
+            <img src="/app{{i.user.userprofile.pfp.url}}" alt="Profile" width="40" height="40" class="rounded-circle me-2">
+            <div>
+                <!--Username-->
+                <div class="fw-bold">{{i.user.username}}</div>
+            </div>
+        </div>
+        <!--Heading-->
+        <div class="mt-2 fs-2 text-info" id="link" data-id={{i.id}}>
+          {{i.heading}}
+        </div>
+      <!--Content-->
+        <p class="mt-2 text-break">
+            {{i}}
+        </p>
+        <div class="d-flex justify-content-between mt-2">
+            <button class="btn btn-outline-secondary btn-sm"><i class="bi bi-share"></i> Share</button>
+        </div>
+    </div>
+</div>
+{%endfor%}
+
+{%endblock%}
+

@@ -1,0 +1,28 @@
+{% include "app/form.html"%}
+{% if alert %}
+    <script>
+        //Try to add the functionality of only few attempts
+        document.addEventListener('DOMContentLoaded', function () {
+            alert('You have entered an incorrect password, please try again!')
+        })
+    </script>
+{% endif %}
+{%block body%}
+<div class="container mt-3 col-lg-4 border ">
+    <form action={%url 'app:login_user'%} method='POST'>
+        {% csrf_token%}
+        <div class="mb-3">
+            <label for="id_username" class="form-label">Username</label>
+            <input type="text" class="form-control" id="id_username" name="username" required="">
+          </div>
+        <div class="mb-3">
+          <label for="id_password" class="form-label">Password</label>
+          <input type="password" class="form-control" id="id_password" name="password" required="">
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+      </form>
+</div>
+{%endblock%}
+
+<hr>
+<a href="{% url 'app:signup' %}"> Don't have an account ? </a>

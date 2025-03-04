@@ -1,0 +1,27 @@
+{%include "app/basic.html"%}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Post</title>
+</head>
+<body>
+    {%block body%}
+<div class="container mt-3 col-lg-6 border ">
+    <form action={%url 'app:addpost'%} method='POST'>
+        {% csrf_token%}
+        <div class="mb-3">
+            <label for="id_heading" class="form-label">Heading</label>
+            <input type="text" class="form-control" id="id_heading" name="heading" required="">
+          </div>
+        <div class="mb-3">
+          <label for="id_content" class="form-label">Content</label>
+          <textarea class="form-control" id="id_content" required="" name="content"> </textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Upload Post</button>
+      </form>
+</div>
+{%endblock%}
+</body>
+</html>
