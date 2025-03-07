@@ -1,28 +1,57 @@
-{% include "app/form.html"%}
+{% extends "app/form.html"%}
+{%block title%} Login {%endblock%}
+
+{%block body%}
 {% if alert %}
     <script>
-        //Try to add the functionality of only few attempts
+        //to add the functionality of only few attempts
         document.addEventListener('DOMContentLoaded', function () {
-            alert('You have entered an incorrect password, please try again!')
+            let div = document.getElementById('eerror');
+            div.innerText = "You have entered an incorrect password"
         })
     </script>
 {% endif %}
-{%block body%}
-<div class="container mt-3 col-lg-4 border ">
-    <form action={%url 'app:login_user'%} method='POST'>
+<div class="container mt-3 col-lg-5 col-md-auto col-sm-auto border ">
+    <form action="{%url 'app:login_user'%}" method='POST' >
         {% csrf_token%}
         <div class="mb-3">
             <label for="id_username" class="form-label">Username</label>
             <input type="text" class="form-control" id="id_username" name="username" required="">
           </div>
-        <div class="mb-3">
+        <div class="mb-3 ">
           <label for="id_password" class="form-label">Password</label>
-          <input type="password" class="form-control" id="id_password" name="password" required="">
+          <input type="password" class="form-control " id="id_password" name="password" required="">
+          <div id="eerror" class="mb-3 text-danger"></div>
+          <button class="btn btn-outline-secondary" id='bt1' type="button" onmouseover="getText()" onmouseout="getPassword()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye-slash-fill" viewBox="0 0 16 16">
+              <path d="m10.79 12.912-1.614-1.615a3.5 3.5 0 0 1-4.474-4.474l-2.06-2.06C.938 6.278 0 8 0 8s3 5.5 8 5.5a7 7 0 0 0 2.79-.588M5.21 3.088A7 7 0 0 1 8 2.5c5 0 8 5.5 8 5.5s-.939 1.721-2.641 3.238l-2.062-2.062a3.5 3.5 0 0 0-4.474-4.474z"/>
+              <path d="M5.525 7.646a2.5 2.5 0 0 0 2.829 2.829zm4.95.708-2.829-2.83a2.5 2.5 0 0 1 2.829 2.829zm3.171 6-12-12 .708-.708 12 12z"/>
+            </svg>
+          </button>
         </div>
         <button type="submit" class="btn btn-primary">Submit</button>
       </form>
+      <br>
+      <a href="{% url 'app:signup' %}" class="text-decoration-none"> Don't have an account ? </a>
 </div>
+<script>
+  var password = document.getElementById('id_password');
+  function getPassword(){
+    let bt1 = document.getElementById('bt1');
+    bt1.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye-slash-fill" viewBox="0 0 16 16">
+  <path d="m10.79 12.912-1.614-1.615a3.5 3.5 0 0 1-4.474-4.474l-2.06-2.06C.938 6.278 0 8 0 8s3 5.5 8 5.5a7 7 0 0 0 2.79-.588M5.21 3.088A7 7 0 0 1 8 2.5c5 0 8 5.5 8 5.5s-.939 1.721-2.641 3.238l-2.062-2.062a3.5 3.5 0 0 0-4.474-4.474z"/>
+  <path d="M5.525 7.646a2.5 2.5 0 0 0 2.829 2.829zm4.95.708-2.829-2.83a2.5 2.5 0 0 1 2.829 2.829zm3.171 6-12-12 .708-.708 12 12z"/>
+</svg>`;
+      password.type = 'password';
+  }
+  function getText(){
+    let bt1 = document.getElementById('bt1');
+    bt1.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye-fill" viewBox="0 0 16 16">
+  <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0"/>
+  <path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8m8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7"/>
+</svg>`;
+    password.type = 'text';
+  }
+</script>
 {%endblock%}
 
-<hr>
-<a href="{% url 'app:signup' %}"> Don't have an account ? </a>

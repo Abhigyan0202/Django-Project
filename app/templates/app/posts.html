@@ -4,13 +4,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Posts</title>
     <script >
         function submitComment(event){
             event.preventDefault();
             const form = document.querySelector('#commentform')
             const formdata = new FormData(form)
-            console.log(`${formdata.content} ${formdata.id}`);
             fetch('/app/addcomment', {
                 method: "POST",
                 headers: {
@@ -25,11 +24,11 @@
                 } else {
                     let comments = document.getElementById('commentlist')
                     let newcomment = document.createElement("div")
-                    newcomment.className = "comment"
+                    //Need to render user's image while user adds a new comment
                     newcomment.innerHTML = `
                     <div class="container p-3 m-3 border rounded-3">
                     <div class="d-flex align-items-center">
-                        <img src="" alt="Profile" width="40" height="40" class="rounded-circle me-2">
+                        <img src="/app${data.pfp}" alt="Profile" width="40" height="40" class="rounded-circle me-2">
                         <div>
                             <!--Username-->
                             <div class="fw-bold">${data.username}</div>
@@ -52,7 +51,7 @@
     <div class="container mt-3" >
         <div class="card shadow-sm mb-3 p-3 rounded-3" >
             <div class="d-flex align-items-center">
-                <img src="" alt="Profile" width="40" height="40" class="rounded-circle me-2">
+                <img src="/app{{post.user.userprofile.pfp.url}}" alt="Profile" width="40" height="40" class="rounded-circle me-2">
                 <div>
                     <!--Username-->
                     <div class="fw-bold">{{post.user}}</div>
@@ -71,9 +70,8 @@
             </div>
         </div>
     </div>
-    <!--Need to deal with the css not loading for new comment issue-->
     
-    
+    {% if user.is_authenticated%}
     <div class="container col-lg-6 border ms-0 m-3">
         <form onsubmit="submitComment(event)" id="commentform">
             {% csrf_token %}
@@ -85,12 +83,16 @@
             <button type="submit" class="btn btn-primary">Comment</button>
         </form>
     </div>
+    {% else %}
+    <div class="container col-lg-6 border ms-0 m-3">
+        <a href="{% url 'app:login_user'%}" class="link-primary text-decoration-none fs-4">Login to leave a comment </a>
+    </div>
+    {% endif  %}
     <div id="commentlist" >
-        <!---->
         {% for i in comments %}
         <div class="container p-3 m-3 border rounded-3">
             <div class="d-flex align-items-center">
-                <img src="" alt="Profile" width="40" height="40" class="rounded-circle me-2">
+                <img src="/app{{i.user.userprofile.pfp.url}}" alt="Profile" width="40" height="40" class="rounded-circle me-2">
                 <div>
                     <!--Username-->
                     <div class="fw-bold">{{i.user}}</div>

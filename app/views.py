@@ -13,7 +13,7 @@ from django.template import Template, Context
 def index(request):
     return render(request,'app/index.html')
 
-#Need to implement a better way to authenticate user, take care of privacy, attacks
+#Need to implement protections against attacks
 #Need to implement forgot password feature
 def signup(request):
     if request.user.is_authenticated:
@@ -22,16 +22,17 @@ def signup(request):
         form = forms.SignUpForm(request.POST)
         if form.is_valid():
             username = form.cleaned_data.get('username')
-            if User.objects.filter(username=username).exists():
-                return render(request,'app/signup.html', {
-                    "form": forms.SignUpForm(),
-                    "usernameWarning": True
-                })
             email = form.cleaned_data.get('email')
-            if User.objects.filter(email=email).exists():
+            password = form.cleaned_data.get('password')
+            usernameWarning = User.objects.filter(username=username).exists()
+            emailWarning = User.objects.filter(email=email).exists()
+            if usernameWarning or emailWarning:
                 return render(request,'app/signup.html', {
-                    "form": forms.SignUpForm(),
-                    "emailWarning": True
+                    "username": username,
+                    "email": email,
+                    "usernameWarning": usernameWarning,
+                    "emailWarning": emailWarning,
+                    'password': password
                 })
             password = form.cleaned_data.get('password')
             user = User.objects.create_user(username,email,password)
@@ -40,7 +41,8 @@ def signup(request):
             userp.save()
             return redirect('app:login_user')
     return render(request,'app/signup.html',{
-        "form": forms.SignUpForm()
+        "usernameWarning": False,
+        "emailWarning": False
     })
 
 def login_user(request):
@@ -68,7 +70,8 @@ def login_user(request):
 def home(request):
     context = {
         "posts": Post.objects.all(),
-        "user": request.user
+        "user": request.user,
+        "flag": request.user.is_authenticated
     }
     return render(request,'app/home.html', context)
 
@@ -122,7 +125,8 @@ def add_comment(request):
             comment1.save()
             return JsonResponse({
                 "username": comment1.user.username,
-                "content": comment1.content
+                "content": comment1.content,
+                "pfp": comment1.user.userprofile.pfp.url
             })
     return JsonResponse({'error': 'Invalid data'}, status=400)
             
@@ -137,6 +141,8 @@ def updateprofile(request):
             return redirect("app:userp")
     
         
+def forgot(request):
+    return render(request, "app/forgot.html")
             
 
 

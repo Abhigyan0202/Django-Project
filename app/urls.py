@@ -14,7 +14,8 @@ urlpatterns = [
     path('posts/<int:id>',views.posts,name="posts"),
     path('userp',views.userp,name="userp"),
     path('addcomment',views.add_comment,name="add_comment"),
-    path('updateprofile',views.updateprofile,name="updateprofile")
+    path('updateprofile',views.updateprofile,name="updateprofile"),
+    path('forgot',views.forgot,name='forgot')
 ]
 
 if settings.DEBUG:
