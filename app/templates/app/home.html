@@ -1,22 +1,12 @@
 {% extends "app/basic.html"%}
-
+{% load static %}
 <head>
-    <script>
-        document.addEventListener('click', event => {
-            const element = event.target;
-            if(element.className === 'mt-2 fs-2 text-info') {
-                window.location.href = `/app/posts/${element.dataset.id}`;
-            }
-            if(element.className === 'right_corner'){
-                window.location.href = '/app/userp'
-            }
-        })
-    </script>
     <style>
         
     </style>
 
 </head>
+
 
 {%block title%}
 Home 
@@ -27,33 +17,40 @@ Home
 
 {% for i in posts%}
 
-    <div class="container mt-3" >
-        <a href="{% url 'app:posts' i.id %}" class="text-decoration-none">
-        <div class="card shadow-sm mb-3 p-3 rounded-3" >
-            <div class="d-flex align-items-center">
-                <img src="/app{{i.user.userprofile.pfp.url}}" alt="Profile" width="40" height="40" class="rounded-circle me-2">
-                <div>
-                    <!--Username-->
-                    <div class="fw-bold">{{i.user.username}}</div>
+    <div class="container shadow-sm mb-3 p-3 rounded-3 border" >
+        <a href="{% url 'posts' i.id %}" class="text-body text-decoration-none">
+            <div class="card-body" id="{{i.id}}">
+                <div class="d-flex align-items-center">
+                    <img src="/app{{i.user.userprofile.pfp.url}}" alt="Profile" width="40" height="40" class="rounded-circle me-2">
+                    <div>
+                        <!--Username-->
+                        <div class="fw-bold">{{i.user.username}}</div>
+                    </div>
                 </div>
+                <!--Heading-->
+                <div class="mt-2 fs-2 text-info" id="link" data-id={{i.id}}>
+                  {{i.heading}}
+                </div>
+              <!--Content-->
+                <p class="mt-2 text-break">
+                    {{i}}
+                </p>
+                <div class="container" id="like_counter_{{i.id}}"> {{i.likes.count}}</div>
             </div>
-            <!--Heading-->
-            <div class="mt-2 fs-2 text-info" id="link" data-id={{i.id}}>
-              {{i.heading}}
-            </div>
-          <!--Content-->
-            <p class="mt-2 text-break">
-                {{i}}
-            </p>
-            <div class="d-flex justify-content-between mt-2">
-                <button class="btn btn-outline-secondary btn-sm"><i class="bi bi-share"></i> Share</button>
-            </div>
-        </div>
         </a>
+        <div class="d-flex justify-content-between mt-2">
+            {%if user.is_authenticated %}
+            {% if user in i.likes.all %}
+            <button  class="btn" style="width: 40px;" data-id = "{{i.id}}"  ><i class="bi bi-hand-thumbs-up-fill" style="font-size: 1.5rem; color: cornflowerblue;"></i></button>
+            {% else %}
+            <button  class="btn" style="width: 40px;" data-id = "{{i.id}}"><i class="bi bi-hand-thumbs-up" style="font-size: 1.5rem; color: cornflowerblue;"></i></button>
+            {%endif%}
+            {%endif%}
+        </div>
     </div>
 
 
 {%endfor%}
-
+<script src="{% static 'js/like.js' %}" defer ></script>
 {%endblock%}
 

@@ -1,10 +1,8 @@
-{%  include "app/basic.html" %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Posts</title>
+{%  extends "app/basic.html" %}
+{%load static%}
+{%block title%} {{post.heading}} {%endblock%}
+
+{%block body%}
     <script >
         function submitComment(event){
             event.preventDefault();
@@ -44,10 +42,6 @@
             })
         }
     </script>
-    <style>
-    </style>
-</head>
-<body>
     <div class="container mt-3" >
         <div class="card shadow-sm mb-3 p-3 rounded-3" >
             <div class="d-flex align-items-center">
@@ -58,15 +52,22 @@
                 </div>
             </div>
             <!--Heading-->
-            <div class="mt-2 fs-2 text-info" id="link" data-id={{i.id}}>
+            <div class="mt-2 fs-2 text-info" id="link" data-id={{post.id}}>
               {{post.heading}}
             </div>
           <!--Content-->
             <p class="mt-2 text-break">
                 {{post.content}}
             </p>
+            <div class="container" id="like_counter_{{post.id}}"> {{post.likes.count}}</div>
             <div class="d-flex justify-content-between mt-2">
-                <button class="btn btn-outline-secondary btn-sm"><i class="bi bi-share"></i> Share</button>
+                {%if user.is_authenticated %}
+                {% if user in post.likes.all %}
+                <button  class="btn" style="width: 40px;" data-id = "{{post.id}}"  ><i class="bi bi-hand-thumbs-up-fill" style="font-size: 1.5rem; color: cornflowerblue;"></i></button>
+                {% else %}
+                <button  class="btn" style="width: 40px;" data-id = "{{post.id}}"><i class="bi bi-hand-thumbs-up" style="font-size: 1.5rem; color: cornflowerblue;"></i></button>
+                {%endif%}
+                {%endif%}
             </div>
         </div>
     </div>
@@ -85,7 +86,7 @@
     </div>
     {% else %}
     <div class="container col-lg-6 border ms-0 m-3">
-        <a href="{% url 'app:login_user'%}" class="link-primary text-decoration-none fs-4">Login to leave a comment </a>
+        <a href="{% url 'login_user'%}" class="link-primary text-decoration-none fs-4">Login to leave a comment </a>
     </div>
     {% endif  %}
     <div id="commentlist" >
@@ -102,5 +103,6 @@
         </div>
         {% endfor %}
     </div>
-</body>
-</html>
+    <script src="{%static "js/like.js" %}">
+    </script>
+{%endblock%}

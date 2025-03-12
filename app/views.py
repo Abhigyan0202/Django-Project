@@ -1,6 +1,6 @@
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import redirect, render
-from django.urls import reverse
+from django.urls import reverse_lazy
 from . import forms
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
@@ -8,7 +8,8 @@ from django.contrib.auth.models import User
 from django.contrib import messages
 from .models import *
 from django.conf import settings
-from django.template import Template, Context
+
+
 # Create your views here.
 def index(request):
     return render(request,'app/index.html')
@@ -17,7 +18,7 @@ def index(request):
 #Need to implement forgot password feature
 def signup(request):
     if request.user.is_authenticated:
-        return redirect('app:home')
+        return redirect('home')
     if request.method == 'POST':
         form = forms.SignUpForm(request.POST)
         if form.is_valid():
@@ -39,7 +40,7 @@ def signup(request):
             userp = UserProfile.objects.create(user=user,description="")
             user.save()
             userp.save()
-            return redirect('app:login_user')
+            return redirect('login_user')
     return render(request,'app/signup.html',{
         "usernameWarning": False,
         "emailWarning": False
@@ -47,7 +48,7 @@ def signup(request):
 
 def login_user(request):
     if request.user.is_authenticated:
-        return redirect('app:home')
+        return redirect('home')
     if request.method == 'POST':
         form = forms.LoginForm(request.POST)
         if form.is_valid():
@@ -56,7 +57,7 @@ def login_user(request):
             user = authenticate(request,username=username,password=password)
             if user is not None:
                 login(request,user)
-                return HttpResponseRedirect(reverse('app:home'))
+                return redirect('home')
             else :
                 return render(request, 'app/login.html', {
                     "form": forms.LoginForm(),
@@ -68,8 +69,9 @@ def login_user(request):
     })
     
 def home(request):
+    posts = Post.objects.prefetch_related('likes').all()
     context = {
-        "posts": Post.objects.all(),
+        "posts": posts,
         "user": request.user,
         "flag": request.user.is_authenticated
     }
@@ -80,7 +82,7 @@ def home(request):
 @login_required    
 def logout_user(request):
     logout(request)
-    return HttpResponseRedirect(reverse('app:home'))
+    return redirect('home')
 
 @login_required
 def addpost(request):
@@ -91,7 +93,7 @@ def addpost(request):
             post = form1.save(commit=False)
             post.user = request.user
             post.save()
-            return HttpResponseRedirect(reverse('app:home'))
+            return redirect('home')
     return render(request, "app/addpost.html", {
         "form": forms.PostForm()
     })
@@ -138,11 +140,30 @@ def updateprofile(request):
         #Need to delete the previous profile picture from the database
         if form1.is_valid():
             form1.save()
-            return redirect("app:userp")
+            return redirect("userp")
     
         
 def forgot(request):
+    if request.method == 'POST':
+        pass
     return render(request, "app/forgot.html")
+
+
+def like(request,id):
+    user = request.user
+    post = Post.objects.get(pk=id)
+    l = len(Like.objects.filter(post=post))
+    if Like.objects.filter(user=user,post=post).exists():
+        Like.objects.filter(user=user,post=post).delete()
+        return JsonResponse({
+            "likes": f"{l-1}",
+            "flag": "remove"
+        })
+    Like.objects.create(user=user,post=post)
+    return JsonResponse({
+        "likes": f"{l+1}",
+        "flag": "add"
+    })
             
 
 

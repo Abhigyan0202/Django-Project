@@ -9,7 +9,7 @@
 <body>
     {%block body%}
 <div class="container mt-3 col-lg-6 border ">
-    <form action={%url 'app:addpost'%} method='POST'>
+    <form action={%url 'addpost'%} method='POST'>
         {% csrf_token%}
         <div class="mb-3">
             <label for="id_heading" class="form-label">Heading</label>

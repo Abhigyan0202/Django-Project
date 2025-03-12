@@ -5,7 +5,7 @@ class Post(models.Model):
     heading = models.CharField(max_length=128)
     content = models.TextField(max_length=2048)
     user = models.ForeignKey(User,on_delete=models.CASCADE,related_name='posts')
-    
+    likes = models.ManyToManyField(User,through='Like',related_name='liked_posts')
     def __str__(self):
         if len(self.content) <= 200:
             return self.content
@@ -27,3 +27,7 @@ class UserProfile(models.Model):
     
     def __str__(self):
         return f"{self.user.username} {self.description[:20]}"
+    
+class Like(models.Model):
+    post = models.ForeignKey(Post,on_delete=models.CASCADE)
+    user = models.ForeignKey(User,on_delete=models.CASCADE)
