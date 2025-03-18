@@ -1,15 +1,8 @@
 {%extends "app/form.html"%}
 
-
+{%block title%} SIgn up{%endblock%}
 {%block body%}
 
-{% if usernameWarning %}
-<script >
-  document.addEventListener('DOMContentLoaded', function(){
-    document.querySelector('#uerror').innerText = 'Username already in use';
-  })
-</script>
-{% endif %}
 {% if emailWarning %}
 <script >
   document.addEventListener('DOMContentLoaded', function(){
@@ -40,11 +33,6 @@
   <h2> Sign Up</h2>
     <form action="{%url 'signup'%}" method='POST'>
         {% csrf_token%}
-        <div class="mb-3">
-            <label for="id_username" class="form-label">Username</label>
-            <input type="text" class="form-control" id="id_username" name="username" required="" value="{{username}}">
-          </div>
-          <div id="uerror" class="mb-3 text-danger"></div>
         <div class="mb-3">
           <label for="id_email" class="form-label">Email address</label>
           <input type="email" class="form-control" id="id_email" required="" name="email" value="{{email}}">

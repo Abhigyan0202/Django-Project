@@ -11,18 +11,23 @@
         })
     </script>
 {% endif %}
+
+
 <div class="container mt-3 col-lg-5 col-md-auto col-sm-auto border ">
   <h2> Login</h2>
     <form action="{%url 'login_user'%}" method='POST' >
         {% csrf_token%}
         <div class="mb-3">
-            <label for="id_username" class="form-label">Username</label>
-            <input type="text" class="form-control" id="id_username" name="username" required="">
-          </div>
+          <label for="id_email" class="form-label">Email address</label>
+          <input type="email" class="form-control" id="id_email" required="" name="email" value="{{email}}">
+        </div>
         <div class="mb-3 ">
           <label for="id_password" class="form-label">Password</label>
           <input type="password" class="form-control " id="id_password" name="password" required="">
-          <div id="eerror" class="mb-3 text-danger"></div>
+          <div id="eerror" class="mb-3 text-danger">
+            {%if noaccount%} An account associated with this email address does not exist {%endif%}
+            {%if alert%} You have entered incorrect password. Please try again or reset your password {%endif%}
+          </div>
           <button class="btn btn-outline-secondary" id='bt1' type="button" onmouseover="getText()" onmouseout="getPassword()">
             <i class="bi bi-eye-slash-fill"></i>
           </button>

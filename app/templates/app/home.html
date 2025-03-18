@@ -1,11 +1,5 @@
 {% extends "app/basic.html"%}
 {% load static %}
-<head>
-    <style>
-        
-    </style>
-
-</head>
 
 
 {%block title%}
@@ -35,7 +29,7 @@ Home
                 <p class="mt-2 text-break">
                     {{i}}
                 </p>
-                <div class="container" id="like_counter_{{i.id}}"> {{i.likes.count}}</div>
+                <div class="container" id="like_counter_{{i.id}}">Likes: {{i.likes.count}}</div>
             </div>
         </a>
         <div class="d-flex justify-content-between mt-2">

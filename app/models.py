@@ -1,11 +1,14 @@
+import datetime
 from django.db import models
 from django.contrib.auth.models import User
+from django.forms import DateTimeField
 # Create your models here.
 class Post(models.Model):
     heading = models.CharField(max_length=128)
     content = models.TextField(max_length=2048)
     user = models.ForeignKey(User,on_delete=models.CASCADE,related_name='posts')
     likes = models.ManyToManyField(User,through='Like',related_name='liked_posts')
+    created = models.DateTimeField(auto_now=True)
     def __str__(self):
         if len(self.content) <= 200:
             return self.content
@@ -15,7 +18,7 @@ class Comment(models.Model):
     post = models.ForeignKey(Post,on_delete=models.CASCADE,related_name='comments')
     user = models.ForeignKey(User,on_delete=models.CASCADE,related_name="comments")
     content = models.TextField(max_length=512)
-    
+    created = models.DateTimeField(auto_now=True)
     def __str__(self):
         return f'{self.post} {self.content[:20]}'
     

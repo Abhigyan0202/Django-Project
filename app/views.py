@@ -1,4 +1,6 @@
-from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
+import random
+import string
+from django.http import HttpResponse,  JsonResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 from . import forms
@@ -8,6 +10,7 @@ from django.contrib.auth.models import User
 from django.contrib import messages
 from .models import *
 from django.conf import settings
+import pathlib
 
 
 # Create your views here.
@@ -16,26 +19,39 @@ def index(request):
 
 #Need to implement protections against attacks
 #Need to implement forgot password feature
+def generateUsername(email):
+    t = ""
+    for i in range(5):
+        if email[i]=='@':
+            break
+        t += email[i]
+    r = ''.join(random.choices(string.digits+string.ascii_letters,k=10-len(t)))
+    t += r
+    return t
+
 def signup(request):
     if request.user.is_authenticated:
         return redirect('home')
     if request.method == 'POST':
         form = forms.SignUpForm(request.POST)
         if form.is_valid():
-            username = form.cleaned_data.get('username')
+            #generate unique username
             email = form.cleaned_data.get('email')
             password = form.cleaned_data.get('password')
-            usernameWarning = User.objects.filter(username=username).exists()
+            username = ""
+            while True:
+                username = generateUsername(email)
+                if User.objects.filter(username=username).exists():
+                    continue
+                else :
+                    break
             emailWarning = User.objects.filter(email=email).exists()
-            if usernameWarning or emailWarning:
+            if emailWarning:
                 return render(request,'app/signup.html', {
-                    "username": username,
                     "email": email,
-                    "usernameWarning": usernameWarning,
                     "emailWarning": emailWarning,
                     'password': password
                 })
-            password = form.cleaned_data.get('password')
             user = User.objects.create_user(username,email,password)
             userp = UserProfile.objects.create(user=user,description="")
             user.save()
@@ -52,21 +68,25 @@ def login_user(request):
     if request.method == 'POST':
         form = forms.LoginForm(request.POST)
         if form.is_valid():
-            username = form.cleaned_data.get('username')
+            email = form.cleaned_data.get('email')
             password = form.cleaned_data.get('password')
-            user = authenticate(request,username=username,password=password)
+            if not User.objects.filter(email=email).exists():
+                return render(request, 'app/login.html', {
+                    "email": email,
+                    "noaccount": True
+                })
+            user = User.objects.get(email=email)
+            user = authenticate(request,username=user.username,password=password)
             if user is not None:
                 login(request,user)
                 return redirect('home')
             else :
                 return render(request, 'app/login.html', {
-                    "form": forms.LoginForm(),
+                    "email": email,
                     "alert": True
                 })
         
-    return render(request, 'app/login.html', {
-        "form": forms.LoginForm()
-    })
+    return render(request, 'app/login.html')
     
 def home(request):
     posts = Post.objects.prefetch_related('likes').all()
@@ -137,10 +157,19 @@ def updateprofile(request):
     obj = UserProfile.objects.get(user=request.user)
     if request.method == 'POST':
         form1 = forms.UserProfileForm(request.POST,request.FILES,instance=obj)
-        #Need to delete the previous profile picture from the database
+        oldusername = request.user.username
+        user = User.objects.get(username=oldusername)
+        newusername = request.POST['username']
+        user.username = newusername
+        user.save()
+        if form1.data.get('pfp') is None:
+            old_pfp = request.user.userprofile.pfp.url
+            if old_pfp!='/media/profile_pics/default.jpg':
+                p = f"D:\All study\Semester 6\Software Engineering\django prac\project5{old_pfp}"
+                pathlib.Path(p).unlink()
         if form1.is_valid():
             form1.save()
-            return redirect("userp")
+        return redirect("userp")
     
         
 def forgot(request):
