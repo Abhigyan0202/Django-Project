@@ -15,7 +15,7 @@ class LoginForm(forms.Form):
 class PostForm(forms.ModelForm):
     class Meta:
         model = Post
-        fields = ['heading','content']
+        fields = ['heading','content','file']
         
 class CommentForm(forms.ModelForm):
     class Meta:

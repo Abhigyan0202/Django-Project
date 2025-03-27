@@ -2,6 +2,8 @@
 {%load static%}
 {%block title%} {{post.heading}} {%endblock%}
 
+<!--Need to check if there is a file then only display it-->
+
 {%block body%}
     <script >
         function submitComment(event){
@@ -22,7 +24,6 @@
                 } else {
                     let comments = document.getElementById('commentlist')
                     let newcomment = document.createElement("div")
-                    //Need to render user's image while user adds a new comment
                     newcomment.innerHTML = `
                     <div class="container p-3 m-3 border rounded-3">
                     <div class="d-flex align-items-center">
@@ -69,8 +70,15 @@
                 {%endif%}
                 {%endif%}
             </div>
+            {%if flag%} 
+            <a href="{% url 'getFile' post.id %}" class="text-decoration-none">
+                <i class="bi bi-file-earmark-fill"></i>
+                Download Attached files
+            </a>
+            {%endif%}
         </div>
     </div>
+    <!--Display an image as the icon-->
     
     {% if user.is_authenticated%}
     <div class="container col-lg-6 border ms-0 m-3">
@@ -78,7 +86,7 @@
             {% csrf_token %}
             <div class="mb-3 align">
                 <label for="id_content" class="form-label">Add a comment</label>
-                <textarea class="form-control" id="id_content" name="content" required=""> </textarea>
+                <textarea id="id_content" name="content" required="" class="form-control"> </textarea>
               </div>
             <input type="hidden" name="id"value="{{post.id}}">
             <button type="submit" class="btn btn-primary">Comment</button>

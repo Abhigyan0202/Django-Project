@@ -9,6 +9,7 @@ class Post(models.Model):
     user = models.ForeignKey(User,on_delete=models.CASCADE,related_name='posts')
     likes = models.ManyToManyField(User,through='Like',related_name='liked_posts')
     created = models.DateTimeField(auto_now=True)
+    file = models.FileField(null=True,blank=True,upload_to='file_uploads/')
     def __str__(self):
         if len(self.content) <= 200:
             return self.content

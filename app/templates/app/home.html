@@ -7,44 +7,112 @@ Home
 {%endblock%}
 
 {%block body%}
+<div class="sidenav rounded-1 border col-lg-3 col-md-3 col-sm-3 m-2 " style="height: 400px;">
+    <p class="fs-3 text-center">Top posts of the week</p>
+    <ul class="list-group" id="list">
+      {% for i in top_posts %}
+        <li class="fs-4 text-start m-1 text-center"><a  class="text-decoration-none" href="{% url 'posts' i.id %}" id="mango">{{i.heading}} <!--{{i.number_of_likes}}--></a></li>
+      {% endfor %}
+    </ul>
+</div>
 
-
-{% for i in posts%}
-
-    <div class="container shadow-sm mb-3 p-3 rounded-3 border" >
-        <a href="{% url 'posts' i.id %}" class="text-body text-decoration-none">
-            <div class="card-body" id="{{i.id}}">
+  <script>
+    //write a listener to fetch next posts
+    let index =0;
+    document.querySelectorAll('button').forEach((b) => {
+    b.addEventListener('click', function(e){
+        fetch(`/app/like/${b.dataset.id}`)
+        .then(response => response.json())
+        .then(data => {
+            let d = document.getElementById(`like_counter_${b.dataset.id}`);
+            d.innerText = `Likes: ${data.likes}`;
+            if(data.flag==='remove') b.innerHTML = `<i class="bi bi-hand-thumbs-up" style="font-size: 1.5rem; color: cornflowerblue;"></i>`;
+            else b.innerHTML = `<i class="bi bi-hand-thumbs-up-fill" style="font-size: 1.5rem; color: cornflowerblue;"></i>`
+        })
+    })
+})
+    function f() 
+      {
+      let main = document.getElementById('main');
+        fetch(`fetchPosts/${index}`)
+        .then(response => response.json())
+        .then(data => {
+          let size = parseInt(data["size"]);
+          console.log(size)
+          for(let i=0;i<size;i++){
+            let element_temp = document.createElement('div');
+            element_temp.className = "container shadow-sm p-3 rounded-3 border ms-7 mb-3 mt-3 col-lg-8";
+            let object = data[i];
+            let link_element = document.createElement('a');
+            link_element.href = `posts/${object["id"]}`;
+            link_element.className = "text-body text-decoration-none";
+            link_element.innerHTML = `
+            <div class="card-body" id="${object["id"]}">
                 <div class="d-flex align-items-center">
-                    <img src="/app{{i.user.userprofile.pfp.url}}" alt="Profile" width="40" height="40" class="rounded-circle me-2">
+                    <img src="/app${object["pfp_url"]}" alt="Profile" width="40" height="40" class="rounded-circle me-2">
                     <div>
                         <!--Username-->
-                        <div class="fw-bold">{{i.user.username}}</div>
+                        <div class="fw-bold">${object["user"]}</div>
                     </div>
                 </div>
                 <!--Heading-->
-                <div class="mt-2 fs-2 text-info" id="link" data-id={{i.id}}>
-                  {{i.heading}}
+                <div class="mt-2 fs-2 text-info" id="link" data-id=${object["id"]}>
+                  ${object["heading"]}
                 </div>
               <!--Content-->
                 <p class="mt-2 text-break">
-                    {{i}}
+                    ${object["content"]}
                 </p>
-                <div class="container" id="like_counter_{{i.id}}">Likes: {{i.likes.count}}</div>
-            </div>
-        </a>
-        <div class="d-flex justify-content-between mt-2">
-            {%if user.is_authenticated %}
-            {% if user in i.likes.all %}
-            <button  class="btn" style="width: 40px;" data-id = "{{i.id}}"  ><i class="bi bi-hand-thumbs-up-fill" style="font-size: 1.5rem; color: cornflowerblue;"></i></button>
-            {% else %}
-            <button  class="btn" style="width: 40px;" data-id = "{{i.id}}"><i class="bi bi-hand-thumbs-up" style="font-size: 1.5rem; color: cornflowerblue;"></i></button>
-            {%endif%}
-            {%endif%}
-        </div>
-    </div>
+                <div class="container" id="like_counter_${object["id"]}">Likes: ${object["like_count"]}</div>
+            </div>`
+          let another = document.createElement('div');
+          another.className = 'd-flex justify-content-between mt-2';
+          if(object["is_authenticated"]) {
+            if(object["has_liked"]){
+              another.innerHTML = `<button  class="btn" style="width: 40px;" data-id = "${object["id"]}"  ><i class="bi bi-hand-thumbs-up-fill" style="font-size: 1.5rem; color: cornflowerblue;"></i></button>`;
+            } else {
+              another.innerHTML = `<button  class="btn" style="width: 40px;" data-id = "${object["id"]}"><i class="bi bi-hand-thumbs-up" style="font-size: 1.5rem; color: cornflowerblue;"></i></button>`;
+            }
+          }
+          element_temp.appendChild(link_element);
+          element_temp.appendChild(another);
+          
+          //element_temp innerHTML is okay
+          main.appendChild(element_temp);
+          }
+        })
+        index += 5;
+
+    }
+    document.addEventListener('DOMContentLoaded', () => {
+      f();
+      setTimeout(() => {
+        document.querySelectorAll('.btn').forEach((b) => {
+       b.onclick = function(e){
+        fetch(`like/${b.dataset.id}`)
+        .then(response => response.json())
+        .then(data => {
+            let d = document.getElementById(`like_counter_${b.dataset.id}`);
+            d.innerText = `Likes: ${data.likes}`;
+            if(data.flag==='remove') b.innerHTML = `<i class="bi bi-hand-thumbs-up" style="font-size: 1.5rem; color: cornflowerblue;"></i>`;
+            else b.innerHTML = `<i class="bi bi-hand-thumbs-up-fill" style="font-size: 1.5rem; color: cornflowerblue;"></i>`
+        })
+    }
+})
+      },500)
+      window.onscroll = () => {
+        if(window.innerHeight + window.scrollY >= document.body.offsetHeight) f();
+      }
+      
+    });
+    
+  </script>
 
 
-{%endfor%}
-<script src="{% static 'js/like.js' %}" defer ></script>
+<div class="main" id = "main">
+
+</div>
+
+
 {%endblock%}
 

@@ -1,6 +1,6 @@
 import random
 import string
-from django.http import HttpResponse,  JsonResponse
+from django.http import FileResponse, HttpResponse,  JsonResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 from . import forms
@@ -11,6 +11,7 @@ from django.contrib import messages
 from .models import *
 from django.conf import settings
 import pathlib
+from django.db.models import Count
 
 
 # Create your views here.
@@ -90,12 +91,16 @@ def login_user(request):
     
 def home(request):
     posts = Post.objects.prefetch_related('likes').all()
+    top_posts = posts.annotate(number_of_likes=Count('likes'))
+    top_posts = top_posts.order_by("-number_of_likes")[:5]
     context = {
         "posts": posts,
         "user": request.user,
-        "flag": request.user.is_authenticated
+        "flag": request.user.is_authenticated,
+        "top_posts": top_posts
     }
     return render(request,'app/home.html', context)
+
 
 
 
@@ -108,7 +113,7 @@ def logout_user(request):
 def addpost(request):
     if request.method == 'POST':
         #Need to implement a feature that if length of post is too long then alert the user
-        form1 = forms.PostForm(request.POST)
+        form1 = forms.PostForm(request.POST,request.FILES)
         if form1.is_valid():
             post = form1.save(commit=False)
             post.user = request.user
@@ -125,7 +130,7 @@ def posts(request,id):
     return render(request,'app/posts.html',{
         "post": post,
         "comments": comments,
-        "commentForm": forms.CommentForm()
+        "flag": post.file
     })
 
 @login_required    
@@ -193,7 +198,41 @@ def like(request,id):
         "likes": f"{l+1}",
         "flag": "add"
     })
-            
+
+def getFile(request,id):    
+    post = Post.objects.get(pk=id)
+    if post.file:
+        return FileResponse(post.file,as_attachment=True)
+    return None
+
+
+def search(request):
+    if request.method == 'GET':
+        keyword = request.GET['s1']
+        posts = Post.objects.filter(heading__icontains=keyword)
+        return render(request,"app/searchresults.html",{
+            "results": posts
+        })
+
+
+def fetchPosts(request,index):
+    length = len(Post.objects.all())
+    posts = Post.objects.all()[index:min(index+5,length)]
+    return_response = {"size": len(posts)}
+    for i in range(len(posts)):
+        post = posts[i]
+        temp = {}
+        temp["id"] = post.id
+        temp["heading"] = post.heading
+        temp["content"] = post.__str__()
+        temp["user"] = post.user.username
+        temp["is_authenticated"] = request.user.is_authenticated
+        temp["has_liked"] = request.user in post.likes.all() 
+        temp["pfp_url"] = post.user.userprofile.pfp.url
+        temp["like_count"] = post.likes.count()
+        return_response[f"{i}"] = temp
+    return JsonResponse(return_response)
+
 
 
         

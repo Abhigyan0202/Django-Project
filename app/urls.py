@@ -21,7 +21,10 @@ urlpatterns = [
     path('reset_password_sent/',auth_views.PasswordResetDoneView.as_view(template_name="users/password_reset_sent.html"),name='password_reset_done'),
     path('reset/<uidb64>/<token>/',auth_views.PasswordResetConfirmView.as_view(template_name="users/password_reset_confirm.html"),name='password_reset_confirm'),
     path('reset_password_complete/',auth_views.PasswordResetCompleteView.as_view(template_name="users/password_reset_complete.html"),name='password_reset_complete' ),
-    path('like/<int:id>/',views.like,name='like')
+    path('like/<int:id>/',views.like,name='like'),
+    path('getFile/<int:id>',views.getFile,name='getFile'),
+    path('search',views.search,name='search'),
+    path('fetchPosts/<int:index>',views.fetchPosts,name='fetchPosts')
 ]
 
 if settings.DEBUG:

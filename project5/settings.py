@@ -117,6 +117,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
 STATIC_URL = 'static/'
+STATICROOT = BASE_DIR / 'static'
+STATICFILES_DIRS = [
+    BASE_DIR / 'app/static'
+]
 
 from django.urls import reverse_lazy
 LOGIN_URL = reverse_lazy('login_user')
