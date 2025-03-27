@@ -1,0 +1,39 @@
+{%extends "app/basic.html"%}
+
+{%block title%} Title {%endblock%}
+
+{%block body%}
+{%for i in results%}
+<div class="container shadow-sm p-3 rounded-3 border ms-7 mb-3 mt-3 col-lg-8 " >
+    <a href="{% url 'posts' i.id %}" class="text-body text-decoration-none">
+        <div class="card-body" id="{{i.id}}">
+            <div class="d-flex align-items-center">
+                <img src="/app{{i.user.userprofile.pfp.url}}" alt="Profile" width="40" height="40" class="rounded-circle me-2">
+                <div>
+                    <!--Username-->
+                    <div class="fw-bold">{{i.user.username}}</div>
+                </div>
+            </div>
+            <!--Heading-->
+            <div class="mt-2 fs-2 text-info" id="link" data-id={{i.id}}>
+              {{i.heading}}
+            </div>
+          <!--Content-->
+            <p class="mt-2 text-break">
+                {{i}}
+            </p>
+            <div class="container" id="like_counter_{{i.id}}">Likes: {{i.likes.count}}</div>
+        </div>
+    </a>
+    <div class="d-flex justify-content-between mt-2">
+        {%if user.is_authenticated %}
+        {% if user in i.likes.all %}
+        <button  class="btn" style="width: 40px;" data-id = "{{i.id}}"  ><i class="bi bi-hand-thumbs-up-fill" style="font-size: 1.5rem; color: cornflowerblue;"></i></button>
+        {% else %}
+        <button  class="btn" style="width: 40px;" data-id = "{{i.id}}"><i class="bi bi-hand-thumbs-up" style="font-size: 1.5rem; color: cornflowerblue;"></i></button>
+        {%endif%}
+        {%endif%}
+    </div>
+</div>
+{%endfor%}
+{%endblock%}
