@@ -1,0 +1,50 @@
+{% extends "app/basic.html" %}
+
+{%block title%} {{event.title}} {%endblock%}
+
+{% block body %}
+<div class="d-flex justify-content-center m-5">
+    <div class="card">
+        <div class="card-body">
+            <div class="card-header">{{event.title}}</div>
+            <div class="row">
+                <div class="col-lg-3 col-md-3 col-sm-3">
+                    <img src="/app{{event.pfp.url}}" alt="Picture of event {{event.title}}" class="img-fluid rounded-start" style="width: 100%; height: auto;">
+                </div>
+                <div class="col-lg-auto col-md-auto col-sm-auto">
+                    <p class="">{{event.description}}</p>
+                </div>
+            </div>
+            <div class="card-footer d-flex justify-content-between align-items-center">
+                Start time - {{event.start_time}}
+                End time - {{event.end_time}}<br>
+                
+                    {%if request.user.is_authenticated %}
+                    {% if request.user in event.users.all %}
+                    <button class="btn btn-outline-danger" id="register" data-id = "{{event.id}}" >Unregister</button>
+                    {% else %}
+                    <button class="btn btn-outline-success" id="register" data-id = "{{event.id}}" >Register</button>
+                    {%endif%}
+                {%endif%}
+                <script>
+                    let button = document.getElementById('register');
+                    button.onclick = async () => {
+                        let response = await fetch(`/app/registerUserForEvent/${button.dataset.id}`);
+                        let data = await response.json()
+                        if(data['registered'] === 'yes'){
+                            button.className = 'btn btn-outline-danger';
+                            button.innerText = 'Unregister';
+                        } else {
+                            button.className = 'btn btn-outline-success';
+                            button.innerText = 'Register';
+                        }
+                        
+                    }
+                    
+                </script>
+                    
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock body %}

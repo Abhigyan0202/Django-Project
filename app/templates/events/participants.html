@@ -1,0 +1,20 @@
+{% extends "app/basic.html" %}
+{% block title %}Participants{% endblock title %}
+{% block body %}
+<div class="container mt-4">
+    <h2 class="mb-4">Participants</h2>
+    <h3 class="mb-4">Total participants: {{participants.count}}</h3>
+    <div class="row">
+        {% for i in participants %}
+        <div class="col-md-4 col-sm-6 mb-3">
+            <div class="card shadow-sm">
+                <div class="card-body d-flex align-items-center">
+                    <img src="/app{{ i.user.userprofile.pfp.url }}" alt="Profile Picture" class="rounded-circle me-3" width="50" height="50">
+                    <a href="/app/userprofile/{{ i.user }}" class="text-body text-decoration-none fw-bold">{{ i.user.username }}</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock body %}
