@@ -26,8 +26,10 @@ class Comment(models.Model):
     
 class UserProfile(models.Model):
     user = models.OneToOneField(User,on_delete=models.CASCADE,related_name="userprofile",unique=True)
-    description = models.TextField(max_length=512)
+    description = models.TextField(max_length=512,null=True)
     pfp = models.ImageField(upload_to="profile_pics/",default='profile_pics/default.jpg')
+    education = models.TextField(max_length=256,default="")
+    achievements = models.TextField(max_length=256,default="")
     
     def __str__(self):
         return f"{self.user.username} {self.description[:20]}"
@@ -35,3 +37,24 @@ class UserProfile(models.Model):
 class Like(models.Model):
     post = models.ForeignKey(Post,on_delete=models.CASCADE)
     user = models.ForeignKey(User,on_delete=models.CASCADE)
+
+class Otp(models.Model):
+    email = models.TextField()
+    otp = models.TextField()
+
+class Event(models.Model):
+    creator = models.ForeignKey(User,on_delete=models.CASCADE,related_name="events")
+    title = models.CharField(max_length=128)
+    start_time = models.DateTimeField()
+    end_time = models.DateTimeField()
+    description = models.TextField(max_length=512)
+    pfp = models.ImageField(upload_to="event_pics/",default='event_pics/default.jpg')
+    users = models.ManyToManyField(User,through='EventUser',related_name='registered_users')
+    
+    def __str__(self):
+        return f"{self.title} {self.start_time}"
+    
+class EventUser(models.Model):
+    event = models.ForeignKey(Event,on_delete=models.CASCADE)
+    user = models.ForeignKey(User,on_delete=models.CASCADE)
+    

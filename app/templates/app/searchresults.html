@@ -11,7 +11,7 @@
                 <img src="/app{{i.user.userprofile.pfp.url}}" alt="Profile" width="40" height="40" class="rounded-circle me-2">
                 <div>
                     <!--Username-->
-                    <div class="fw-bold">{{i.user.username}}</div>
+                    <a class="fw-bold text-body text-decoration-none" href="{%url 'userp' i.user %}">{{i.user}}</a>
                 </div>
             </div>
             <!--Heading-->

@@ -1,28 +1,68 @@
 {%  extends "app/basic.html" %}
+{%load widget_tweaks%}
 
-{%block title%} {{user.username}} Profile {%endblock%}
+{%block title%} {{request.user.username}} Profile {%endblock%}
 
 {%block body%}   
-
-<div class="container-fluid m-5 text-center">
+<div class="container-fluid m-5">
         <form action="{% url 'updateprofile'%}" method="post" enctype="multipart/form-data">
             {% csrf_token %}
-            <div class="row">
-                <div class="col-4 border m-3 justify-items-center">
-                    <img src="/app{{user.userprofile.pfp.url}}" class="rounded-circle img-thumbnail"  alt="Image of the user {{user.username}}">
-                    <label for="id_pfp"></label>
-                    <input class="mb-3" type="file" id="id_pfp" name="pfp" accept="image/*">
-                </div>
-                <div class="col-6 border m-3">
-                    <label class="form-label"  for="id_username">Username:</label>
-                    <input type="text" class="form-control"  name="username" id="id_username" row="30" value="{{user.username}}" autocomplete="off">   
-                    <label class="form-label"  for="id_description">Description:</label>
-                    <textarea class="form-control mb-3"  name="description" id="id_description" row="30" style="height: 50%">{{user.userprofile.description}}</textarea>                    
+            <div class="container round mt-5 mb-5">
+                <div class="row">
+                    <div class="col-md-3 border-end border-primary-subtle">
+                        {%if form%}
+                        <div class="d-flex flex-column align-items-center text-center p-3 py-5"><img class="rounded-circle mt-5" width="250px" src="/app{{request.user.userprofile.pfp.url}}"><span class="text-body"></span></div>
+                        {%render_field form.pfp class+="form-control"%}
+                        {%else %}
+                        <div class="d-flex flex-column align-items-center text-center p-3 py-5"><img class="rounded-circle mt-5" width="250px" src="/app{{user.userprofile.pfp.url}}"><span class="text-body"></span></div>
+                        {%endif%}
+                    </div>
+                    <div class="col-md-5 border-end border-primary-subtle">
+                        <div class="p-3 py-5">
+                            <div class="row mt-2">
+                                <label class="form-label"  for="id_username">Username:</label>
+                                {%if form%}
+                                <input type="text" class="form-control"  name="username" id="id_username" value="{{request.user.username}}" autocomplete="off">
+                                {%else %}
+                                    <p class="lead p-3 "  for="id_username">{{user.username}}</p>
+                                {%endif%}
+                            </div>
+                            <div class="row mt-3">
+                                <label class="form-label"  for="id_description">About:</label>
+                                {%if form%}
+                                <textarea class="form-control mb-3"  name="description" id="id_description" row="30" style="height:300px">{{request.user.userprofile.description}}</textarea>   
+                                {%else%}
+                                <p class="lead"  for="id_username">{{user.userprofile.description}}</p>
+                                {%endif%}
+                            </div>
+                            {%if form%}
+                            <input class="btn btn-primary profile-button" type="submit" value="Save Profile">
+                            {%endif%}
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="p-3 py-5">
+                            <label class="form-label"  for="id_education">Education:</label>
+                            {%if form%}
+                            <textarea class="form-control mb-3"  name="education" id="id_education" style="height:150px">{{request.user.userprofile.education}}</textarea>
+                            {%else%}
+                            <p class="lead"  for="id_username">{{user.userprofile.education}}</p>
+                            {%endif%}
+                            <label class="form-label"  for="id_achievements">Achievements:</label>
+                            {%if form%}
+                            <textarea class="form-control mb-3"  name="achievements" id="id_achievements" style="height:150px">{{request.user.userprofile.achievements}}</textarea>
+                            {%else%}
+                            <p class="lead "  for="id_username">{{user.userprofile.achievements}}</p>
+                            {%endif%}
+                        </div>
+                    </div>
                 </div>
             </div>
-            <button class="btn btn-primary">Save Changes</button>
         </form>
         
-    </div>
+</div>
+
+
+
 
 {%endblock%}

@@ -12,14 +12,15 @@ from .models import *
 from django.conf import settings
 import pathlib
 from django.db.models import Count
-
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
+from django.utils import timezone
 
 # Create your views here.
 def index(request):
     return render(request,'app/index.html')
 
 #Need to implement protections against attacks
-#Need to implement forgot password feature
 def generateUsername(email):
     t = ""
     for i in range(5):
@@ -30,38 +31,69 @@ def generateUsername(email):
     t += r
     return t
 
+def generateOTP(email):
+    otp =  ''.join(random.choices(string.digits,k=6))
+    object = Otp.objects.filter(email=email)
+    if object.exists():
+        object.delete()
+    Otp.objects.create(email=email,otp=otp)
+    html_content = render_to_string(template_name="users/otp_registration.html",context={"otp": otp})
+    send_mail("OTP for registration",message="",html_message=html_content,from_email="abhigyanbhatnagar2@gmail.com",recipient_list=[email])
+    
+def resetOTP(request,email):
+    print("got reset")
+    generateOTP(email)
+
+
+
 def signup(request):
     if request.user.is_authenticated:
         return redirect('home')
     if request.method == 'POST':
-        form = forms.SignUpForm(request.POST)
-        if form.is_valid():
-            #generate unique username
-            email = form.cleaned_data.get('email')
-            password = form.cleaned_data.get('password')
-            username = ""
-            while True:
-                username = generateUsername(email)
-                if User.objects.filter(username=username).exists():
-                    continue
-                else :
-                    break
-            emailWarning = User.objects.filter(email=email).exists()
-            if emailWarning:
-                return render(request,'app/signup.html', {
-                    "email": email,
-                    "emailWarning": emailWarning,
-                    'password': password
-                })
-            user = User.objects.create_user(username,email,password)
-            userp = UserProfile.objects.create(user=user,description="")
-            user.save()
-            userp.save()
-            return redirect('login_user')
-    return render(request,'app/signup.html',{
-        "usernameWarning": False,
-        "emailWarning": False
-    })
+        email = request.POST["email"]
+        #Email validation should be here
+        emailWarning = User.objects.filter(email=email).exists()
+        if emailWarning:
+            return render(request,'app/getEmail.html', {
+                "email": email,
+                "emailWarning": emailWarning,
+            })
+        generateOTP(email)
+        return render(request,"app/signup.html", {
+            "email": email,
+            "otpWarning": False
+        })
+     
+    return render(request, "app/getEmail.html")
+
+
+def saveUser(request):
+    #This is triggered only when the user has been successfully verified
+    if request.user.is_authenticated:
+        return redirect('home')
+    if request.method == 'POST':
+        email = request.POST["email"]
+        otp = request.POST["otp"]
+        password = request.POST["password"]
+        if otp != Otp.objects.get(email=email).otp:
+            return render(request,"app/signup.html", {
+                "email": email,
+                "password": password,
+                "otpWarning": True
+            })
+        username = ""
+        while True:
+            username = generateUsername(email)
+            if User.objects.filter(username=username).exists():
+                continue
+            else :
+                break
+        user = User.objects.create_user(username,email,password)
+        userp = UserProfile.objects.create(user=user,description="")
+        user.save()
+        userp.save()
+        return redirect('login_user')
+
 
 def login_user(request):
     if request.user.is_authenticated:
@@ -92,6 +124,7 @@ def login_user(request):
 def home(request):
     posts = Post.objects.prefetch_related('likes').all()
     top_posts = posts.annotate(number_of_likes=Count('likes'))
+    #fetch those where created at is less than 7 days away
     top_posts = top_posts.order_by("-number_of_likes")[:5]
     context = {
         "posts": posts,
@@ -132,13 +165,17 @@ def posts(request,id):
         "comments": comments,
         "flag": post.file
     })
-
-@login_required    
-def userp(request):
-    userprofile = UserProfile.objects.get(user=request.user)
-    return render(request, "app/userprofile.html", {
-        "user": request.user,
+  
+def userp(request,username):
+    if request.user.username == username:
+        return render(request, "app/userprofile.html", {
         "form": forms.UserProfileForm()
+    })
+    if not User.objects.filter(username=username).exists():
+        return redirect("home")
+    #Need to change this, if request.user == user(username=username) then display a form else display stati
+    return render(request, "app/userprofile.html", {
+        "user": User.objects.get(username=username),
     })
     
 def add_comment(request):
@@ -164,6 +201,7 @@ def updateprofile(request):
         form1 = forms.UserProfileForm(request.POST,request.FILES,instance=obj)
         oldusername = request.user.username
         user = User.objects.get(username=oldusername)
+        #Check if new user name is already there
         newusername = request.POST['username']
         user.username = newusername
         user.save()
@@ -174,7 +212,8 @@ def updateprofile(request):
                 pathlib.Path(p).unlink()
         if form1.is_valid():
             form1.save()
-        return redirect("userp")
+        return redirect(request.path)
+    return redirect("userp", request.user.username)
     
         
 def forgot(request):
@@ -234,6 +273,85 @@ def fetchPosts(request,index):
     return JsonResponse(return_response)
 
 
-
+def events(request):
+    events = Event.objects.filter(start_time__gte=datetime.datetime.now())
+    return render(request,"events/events.html",{
+        "events": events
+    })
         
     
+def showevent(request,id):
+    event = Event.objects.get(pk=id)
+    return render(request, "events/showevent.html", {
+        "event": event
+    })
+
+def registerUserForEvent(request,id):
+    user = request.user
+    event = Event.objects.get(pk=id)
+    if EventUser.objects.filter(user=user,event=event).exists():
+        EventUser.objects.filter(user=user,event=event).delete()
+        return JsonResponse({
+            "registered": "no"
+        })
+    else :
+        EventUser.objects.create(user=user,event=event)
+        return JsonResponse({
+            "registered": "yes"
+        })
+    
+
+def createevent(request):
+    if request.method == 'POST':
+        form = forms.EventForm(request.POST,request.FILES)
+        if form.is_valid():
+            form1 = form.save(commit=False)
+            form1.creator = request.user
+            form1.save()
+            return redirect('events')
+
+    return render(request, "events/createevent.html", {
+        "form": forms.EventForm(),
+        "now": datetime.datetime.today().strftime("%Y-%m-%d")+'T00:00'
+    })
+
+def myPosts(request):
+    posts = Post.objects.filter(user=request.user)
+    return render(request,"app/myposts.html",{
+        "posts": posts
+    })
+
+def myEvents(request):
+    events = Event.objects.filter(creator=request.user)
+    return render(request,"events/myevents.html",{
+        "events": events
+    })
+
+def deletePost(request,id):
+    post = Post.objects.get(pk=id)
+    if post.user == request.user :
+        Post.objects.filter(pk=id).delete()
+        return JsonResponse({
+            "flag": "yes"
+        })
+    else :
+        return redirect('home')
+    
+def deleteEvent(request,id):
+    event = Event.objects.get(pk=id)
+    if event.creator == request.user :
+        Event.objects.filter(pk=id).delete()
+        return JsonResponse({
+            "flag": "yes"
+        })
+    else :
+        return redirect('home')
+    
+def checkparticipants(request,id):
+    event = Event.objects.get(pk=id)
+    if request.user != event.creator:
+        return redirect("home")
+    participants = EventUser.objects.filter(event=event)
+    return render(request, "events/participants.html", {
+        "participants": participants
+    })

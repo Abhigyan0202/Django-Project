@@ -1,21 +1,13 @@
 {%extends "app/form.html"%}
 
-{%block title%} SIgn up{%endblock%}
+{%block title%} Sign up{%endblock%}
 {%block body%}
 
-{% if emailWarning %}
-<script >
-  document.addEventListener('DOMContentLoaded', function(){
-    document.querySelector('#eerror').innerText = 'Email already in use';
-  })
-</script>
-{% endif %}
 <script >
   document.addEventListener('DOMContentLoaded', function() {
     const form = document.querySelector('form');
     const password = document.querySelector('#id_password');
     form.addEventListener('submit', function(e) {
-      //Need to fix regex
         let regex = /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/;
         let pvalue = password.value;
         if(regex.test(pvalue)){
@@ -27,22 +19,31 @@
         }
         
     })
+
   })
 </script>
 <div class="container mt-3 col-lg-4 border ">
   <h2> Sign Up</h2>
-    <form action="{%url 'signup'%}" method='POST'>
+    <form action="{%url 'saveuser'%}" method='POST'>
         {% csrf_token%}
         <div class="mb-3">
-          <label for="id_email" class="form-label">Email address</label>
-          <input type="email" class="form-control" id="id_email" required="" name="email" value="{{email}}">
+          <label for="id_email" class="form-label">Email</label>
+          <input type="email" class="form-control" id="id_email" readonly name="email" value="{{email}}">
         </div>
-        <div id="eerror" class="mb-3 text-danger"></div>
+        <div class="mb-3">
+          <label for="id_otp" class="form-label">OTP</label>
+          <input type="text" class="form-control" id="id_otp" required="" name="otp" >
+        </div>
+       <button class="btn btn-primary" id="resetOTP" >Click here to reset otp</button>
+        {%if otpWarning%}
+          <div id="oerror" class="mb-3 text-danger">OTP entered was not correct</div>
+        {%endif%}
+        
         <div class="mb-3">
           <label for="id_password" class="form-label">Password</label>
           <input type="password" class="form-control" id="id_password" name="password" required="" value="{{password}}">
           <button class="btn btn-outline-secondary" id="bt1" type="button" onclick="getText()" onmouseover="getText()" onmouseout="getPassword()">
-            <i class="bi bi-eye-slash-fill"></i>;
+            <i class="bi bi-eye-slash-fill"></i>
           </button>
         </div>
         <div id="perror" class="mb-3 text-danger"></div>
@@ -62,6 +63,15 @@
     bt1.innerHTML = `<i class="bi bi-eye-fill"></i>`;
     password.type = 'text';
   }
+  document.getElementById('resetOTP').onclick = () => {
+    email = document.querySelector('#id_email').value;
+    console.log(email)
+    fetch(`/app/resetOTP/${email}`).then().then(()=> {
+      alert("otp reset done")
+    })
+  }
 </script>
+
+
 {%endblock%}
 
