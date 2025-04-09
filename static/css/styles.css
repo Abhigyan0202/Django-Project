@@ -1,0 +1,14 @@
+.sidenav {
+	height: 100px;
+	position: absolute;
+	z-index: 1;
+	top: 10;
+	left: 5;
+	overflow-x: hidden;
+	padding-top: 20px;
+  }
+  
+  /* Page content */
+  .main {
+	margin-left: 200px; /* Same as the width of the sidenav */
+  }

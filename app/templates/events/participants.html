@@ -2,7 +2,13 @@
 {% block title %}Participants{% endblock title %}
 {% block body %}
 <div class="container mt-4">
-    <h2 class="mb-4">Participants</h2>
+    <div class="d-flex justify-content-between align-items-center">
+        <h2 class="mb-4">Participants</h2>
+        <button class="btn btn-outline-info ms-auto" data-id="{{eventid}}" data-bs-toggle="modal" data-bs-target="#exampleModal">
+            Send a mail to all participants
+        </button>
+    </div>
+    
     <h3 class="mb-4">Total participants: {{participants.count}}</h3>
     <div class="row">
         {% for i in participants %}
@@ -17,4 +23,39 @@
         {% endfor %}
     </div>
 </div>
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Enter your message</h5>
+        </div>
+        <div class="modal-body">
+          <form action="" id="messageform">
+            {%csrf_token%}
+                <textarea name="message" id="message" class="form-control" style="height:300px"></textarea>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="button" data-id="{{eventid}}"class="btn btn-primary delete-button-confirm">Send</button>
+        </div>
+      </div>
+    </div>
+  </div>
+<script>
+    let button = document.querySelector('.delete-button-confirm')
+    const form = document.querySelector('#messageform')
+    const formdata = new FormData(form)
+    button.onclick = async () => {
+        location.reload();
+        let response = await fetch(`/app/emailParticipants/${button.dataset.id}`,{
+            method: "POST",
+            headers: {
+                    "X-CSRFToken": document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+            body: formdata
+        });
+    }
+</script>
+
 {% endblock body %}

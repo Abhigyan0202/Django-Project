@@ -12,3 +12,11 @@
   .main {
 	margin-left: 200px; /* Same as the width of the sidenav */
   }
+.nav-link:hover {
+    color: #ffc107 !important; /* Change link color on hover */
+    text-decoration: underline;
+}
+
+a.text-decoration-none:hover {
+    text-decoration: underline;
+}

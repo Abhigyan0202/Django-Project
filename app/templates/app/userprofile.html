@@ -9,20 +9,21 @@
             {% csrf_token %}
             <div class="container round mt-5 mb-5">
                 <div class="row">
-                    <div class="col-md-3 border-end border-primary-subtle">
+                    <div class="col-md-3 border-end border-body">
                         {%if form%}
-                        <div class="d-flex flex-column align-items-center text-center p-3 py-5"><img class="rounded-circle mt-5" width="250px" src="/app{{request.user.userprofile.pfp.url}}"><span class="text-body"></span></div>
+                        <div class="d-flex flex-column align-items-center text-center p-3 py-5"><img class="rounded-circle mt-5" width="250px" height="200px" src="/app{{request.user.userprofile.pfp.url}}"><span class="text-body"></span></div>
                         {%render_field form.pfp class+="form-control"%}
                         {%else %}
                         <div class="d-flex flex-column align-items-center text-center p-3 py-5"><img class="rounded-circle mt-5" width="250px" src="/app{{user.userprofile.pfp.url}}"><span class="text-body"></span></div>
                         {%endif%}
                     </div>
-                    <div class="col-md-5 border-end border-primary-subtle">
+                    <div class="col-md-5 border-end border-body">
                         <div class="p-3 py-5">
                             <div class="row mt-2">
                                 <label class="form-label"  for="id_username">Username:</label>
                                 {%if form%}
                                 <input type="text" class="form-control"  name="username" id="id_username" value="{{request.user.username}}" autocomplete="off">
+                                <p class="text-danger">{{error}} </p>
                                 {%else %}
                                     <p class="lead p-3 "  for="id_username">{{user.username}}</p>
                                 {%endif%}
@@ -36,7 +37,7 @@
                                 {%endif%}
                             </div>
                             {%if form%}
-                            <input class="btn btn-primary profile-button" type="submit" value="Save Profile">
+                            <input class="btn btn-primary profile-button mx-auto" type="submit" value="Save Profile">
                             {%endif%}
                         </div>
                     </div>
@@ -61,7 +62,34 @@
         </form>
         
 </div>
+{%if form%}
+<div class="row">
+    <button class="col-lg-3 btn btn-outline-danger mx-auto mb-5" data-bs-toggle="modal" data-bs-target="#exampleModal">Delete account</button>
+</div>
+{%endif%}
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Deleting User Profile</h5>
+        </div>
+        <div class="modal-body">
+          Are you sure you want to delete your account ? This action is permanent.
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary delete-button-confirm">Yes</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
+<script>
+    document.querySelector('.delete-button-confirm').onclick = async () => {
+        await fetch('/app/deleteUser/{{request.user}}');
+        window.location = "/app/signup"
+    }
+</script>
 
 
 

@@ -1,30 +1,24 @@
 {%extends "app/basic.html"%}
-
+{%load static%}
 {%block title%} Title {%endblock%}
 
 {%block body%}
 {%for i in results%}
-<div class="container shadow-sm p-3 rounded-3 border ms-7 mb-3 mt-3 col-lg-8 " >
-    <a href="{% url 'posts' i.id %}" class="text-body text-decoration-none">
-        <div class="card-body" id="{{i.id}}">
-            <div class="d-flex align-items-center">
-                <img src="/app{{i.user.userprofile.pfp.url}}" alt="Profile" width="40" height="40" class="rounded-circle me-2">
-                <div>
-                    <!--Username-->
-                    <a class="fw-bold text-body text-decoration-none" href="{%url 'userp' i.user %}">{{i.user}}</a>
-                </div>
-            </div>
-            <!--Heading-->
-            <div class="mt-2 fs-2 text-info" id="link" data-id={{i.id}}>
-              {{i.heading}}
-            </div>
-          <!--Content-->
-            <p class="mt-2 text-break">
-                {{i}}
-            </p>
-            <div class="container" id="like_counter_{{i.id}}">Likes: {{i.likes.count}}</div>
+<div class="container shadow-sm p-3 rounded-3 border ms-7 mb-3 mt-3 col-lg-8 ">
+    <div class="card-body">
+        <div class="d-flex align-items-center">
+            <img src="/app{{i.user.userprofile.pfp.url}}" alt="Profile" width="40" height="40" class="rounded-circle me-2">
+                <!--Username-->
+                <a class="fw-bold text-body text-decoration-none" href="{%url 'userp' i.user %}">{{i.user}}</a>
         </div>
-    </a>
+        <div class="mt-2 fs-2 text-info" id="link" data-id={{i.id}}>
+            <a href="{% url 'posts' i.id %}" class="text-info text-decoration-none">{{i.heading}}</a>
+        </div>
+        <p class="mt-2 text-break">
+            {{i}}
+        </p>
+        <div class="container" id="like_counter_{{i.id}}">Likes: {{i.likes.count}}</div>
+    </div>
     <div class="d-flex justify-content-between mt-2">
         {%if user.is_authenticated %}
         {% if user in i.likes.all %}
@@ -36,4 +30,6 @@
     </div>
 </div>
 {%endfor%}
+<script src='{%static "js/like.js" %}'>
+    </script>
 {%endblock%}

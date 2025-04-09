@@ -7,6 +7,24 @@ Home
 {%endblock%}
 
 {%block body%}
+<script >
+  var liked_button = null;
+  document.addEventListener('click', (clicked) => {
+    liked_button = clicked.target.dataset.id;
+    console.log(liked_button);
+  })
+  function likePost(data_id) {
+fetch(`/app/like/${data_id}`)
+    .then(response => response.json())
+    .then(data => {
+        let d = document.getElementById(`like_counter_${data_id}`);
+        let b = document.getElementById(`like_${data_id}`)
+        d.innerText = `Likes: ${data.likes}`;
+        if(data.flag==='remove') b.innerHTML = `<i class="bi bi-hand-thumbs-up" style="font-size: 1.5rem; color: cornflowerblue;"></i>`;
+        else b.innerHTML = `<i class="bi bi-hand-thumbs-up-fill" style="font-size: 1.5rem; color: cornflowerblue;"></i>`
+    })
+}
+</script>
 <div class="sidenav rounded-1 border col-lg-3 col-md-3 col-sm-3 m-2 " style="height: 400px;">
     <p class="fs-3 text-center">Top posts of the week</p>
     <ul class="list-group" id="list">
@@ -18,7 +36,7 @@ Home
 
   <script>
     //write a listener to fetch next posts
-    let index =0;
+    let index =0;/*
     document.querySelectorAll('button').forEach((b) => {
     b.addEventListener('click', function(e){
         fetch(`/app/like/${b.dataset.id}`)
@@ -30,7 +48,7 @@ Home
             else b.innerHTML = `<i class="bi bi-hand-thumbs-up-fill" style="font-size: 1.5rem; color: cornflowerblue;"></i>`
         })
     })
-})
+})*/
     function f() 
       {
       let main = document.getElementById('main');
@@ -69,9 +87,9 @@ Home
           another.className = 'd-flex justify-content-between mt-2';
           if(object["is_authenticated"]) {
             if(object["has_liked"]){
-              another.innerHTML = `<button  class="btn" style="width: 40px;" data-id = "${object["id"]}"  ><i class="bi bi-hand-thumbs-up-fill" style="font-size: 1.5rem; color: cornflowerblue;"></i></button>`;
+              another.innerHTML = `<button  class="btn" style="width: 40px;" data-id = "${object["id"]}" id="like_${object["id"]}" onclick="likePost(${object["id"]})"  ><i class="bi bi-hand-thumbs-up-fill" data-id = "${object["id"]}" style="font-size: 1.5rem; color: cornflowerblue;"></i></button>`;
             } else {
-              another.innerHTML = `<button  class="btn" style="width: 40px;" data-id = "${object["id"]}"><i class="bi bi-hand-thumbs-up" style="font-size: 1.5rem; color: cornflowerblue;"></i></button>`;
+              another.innerHTML = `<button  class="btn" style="width: 40px;" data-id = "${object["id"]}" onclick="likePost(${object["id"]})"  ><i class="bi bi-hand-thumbs-up" data-id = "${object["id"]}" style="font-size: 1.5rem; color: cornflowerblue;"></i></button>`;
             }
           }
           element_temp.appendChild(link_element);
@@ -102,6 +120,7 @@ Home
       },500)
       window.onscroll = () => {
         if(window.innerHeight + window.scrollY >= document.body.offsetHeight) f();
+        
       }
       
     });

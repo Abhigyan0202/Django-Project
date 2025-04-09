@@ -17,7 +17,7 @@ urlpatterns = [
     path('userprofile/<str:username>',views.userp,name="userp"),
     path('addcomment',views.add_comment,name="add_comment"),
     path('updateprofile',views.updateprofile,name="updateprofile"),
-    path('reset_password/',auth_views.PasswordResetView.as_view(template_name="users/password_reset.html"),name='reset_password'),
+    path('reset_password/',auth_views.PasswordResetView.as_view(template_name="users/password_reset.html",email_template_name='users/email.html'),name='reset_password'),
     path('reset_password_sent/',auth_views.PasswordResetDoneView.as_view(template_name="users/password_reset_sent.html"),name='password_reset_done'),
     path('reset/<uidb64>/<token>/',auth_views.PasswordResetConfirmView.as_view(template_name="users/password_reset_confirm.html"),name='password_reset_confirm'),
     path('reset_password_complete/',auth_views.PasswordResetCompleteView.as_view(template_name="users/password_reset_complete.html"),name='password_reset_complete' ),
@@ -35,7 +35,10 @@ urlpatterns = [
     path('myevents',views.myEvents,name='myevents'),
     path('deletePost/<int:id>',views.deletePost,name='deletePost'),
     path('deleteEvent/<int:id>',views.deleteEvent,name='deleteEvent'),
-    path('checkparticipants/<int:id>',views.checkparticipants,name='checkparticipants')
+    path('checkparticipants/<int:id>',views.checkparticipants,name='checkparticipants'),
+    path('deleteUser/<str:username>',views.deleteUser,name='deleteUser'),
+    path('emailParticipants/<int:eventid>',views.emailParticipants,name='emailParticipants')
+    
 ]
 
 if settings.DEBUG:

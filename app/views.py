@@ -68,7 +68,6 @@ def signup(request):
 
 
 def saveUser(request):
-    #This is triggered only when the user has been successfully verified
     if request.user.is_authenticated:
         return redirect('home')
     if request.method == 'POST':
@@ -145,7 +144,6 @@ def logout_user(request):
 @login_required
 def addpost(request):
     if request.method == 'POST':
-        #Need to implement a feature that if length of post is too long then alert the user
         form1 = forms.PostForm(request.POST,request.FILES)
         if form1.is_valid():
             post = form1.save(commit=False)
@@ -173,7 +171,6 @@ def userp(request,username):
     })
     if not User.objects.filter(username=username).exists():
         return redirect("home")
-    #Need to change this, if request.user == user(username=username) then display a form else display stati
     return render(request, "app/userprofile.html", {
         "user": User.objects.get(username=username),
     })
@@ -203,6 +200,11 @@ def updateprofile(request):
         user = User.objects.get(username=oldusername)
         #Check if new user name is already there
         newusername = request.POST['username']
+        if User.objects.filter(username=newusername).exists() and oldusername!=newusername:
+            return render(request, "app/userprofile.html", {
+                "form": forms.UserProfileForm(),
+                "error": f'The username "{newusername}" is not available'
+            })
         user.username = newusername
         user.save()
         if form1.data.get('pfp') is None:
@@ -353,5 +355,30 @@ def checkparticipants(request,id):
         return redirect("home")
     participants = EventUser.objects.filter(event=event)
     return render(request, "events/participants.html", {
-        "participants": participants
+        "participants": participants,
+        "eventid": id
     })
+
+def deleteUser(request,username):
+    user = User.objects.get(username=username)
+    if request.user != user :
+        return redirect('home')
+    user.delete()
+    return JsonResponse({
+        "flag": "yes"
+    })
+
+def emailParticipants(request,eventid):
+    event = Event.objects.get(pk=eventid)
+    if request.user != event.creator:
+        return redirect("home")
+    message = request.POST["message"]
+    participants = EventUser.objects.filter(event=event)
+    emails = []
+    for i in participants:
+        emails.append(i.user.email)
+    send_mail(f"Mail regarding the event -  {event.title}",message=message,from_email="abhigyanbhatnagar2@gmail.com",recipient_list=emails)
+    return JsonResponse({
+        "message": message
+    })
+    
