@@ -34,7 +34,6 @@ Some features are still under development . <br>
 1. The software has a comparatively high response time while
 sending any mail to the user.
 - Potential fix is changing the mail backend
-Potential Improvements
 2. Currently, the data is being stored locally and can be
 shifted onto a cloud server when the app is deployed in
 production.
